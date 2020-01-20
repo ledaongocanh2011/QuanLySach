@@ -4,7 +4,6 @@ namespace App;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Support\Facades\Auth;
 
 class User extends Authenticatable
 {
@@ -46,38 +45,10 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    //function book()
-    //{
-    //    return $this->belongsToMany(Book::class,'book_user');
-    //}
     function dataUser()
     {
         $users = $this->all();
 
         return $users;
-    }
-
-    function showListUser()
-    {
-        $users = User::where('id', '!=', Auth::id())->orderBy('id', 'desc')->paginate(10);
-
-        return $users;
-    }
-
-    function updateUser($request)
-    {
-        $dataUser = User::find($request->id)->update($request->all());
-
-        return $dataUser;
-    }
-
-    function deleteUser($id)
-    {
-        $dataUser = User::find($id);
-        if (Auth::id() != $dataUser->id) {
-            $dataUser->delete();
-        }
-
-        return $dataUser;
     }
 }

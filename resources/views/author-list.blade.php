@@ -13,7 +13,7 @@
             <td><input type="text" class="hidden data" value="{{$author['name']}}">
                 <span
                     class="content">{{$author['name']}}
-                            </span>
+                </span>
             </td>
             <td>
                 <button type="button" class="btn btn-success edit" data-id="{{$author['id']}}">Sửa

@@ -27,46 +27,58 @@ class AuthorRepositoryEloquent extends BaseRepository implements AuthorRepositor
 
     public function DataAuthors()
     {
-        $authors = $this->model->dataAuthor();
+        $authors = $this->get();
 
         return $authors;
     }
 
     public function authorList()
     {
-        $authors = $this->model->showList();
+        $authors = $this->orderBy('id', 'desc')->paginate(10);
 
         return compact('authors');
     }
 
     public function addAuthor(Request $authorRequest)
     {
-        $author = $this->model->newAuthor($authorRequest);
+        $author = $this->create([
+            'name' => $authorRequest->name,
+        ]);;
 
         return $author;
     }
 
     public function updateAuthor(Request $request)
     {
-        $author = $this->model->updateAuthor($request);
+        $author = $this->find($request->id)->update($request->all());
 
         return $author;
     }
 
     public function deleteAuthor($id)
     {
-        $this->model->deleteAuhor($id);
+        $author = $this->find($id);
+        if ($author->book->status != 2) {
+            $author->delete();
+        }
+
     }
 
     public function restoreAuthor()
     {
-        $authors = $this->model->restoreAuthor();
+        $authors = $this->onlyTrashed('deleted_at')->paginate(10);
 
         return compact('authors');
     }
+
     public function restoreAuthorById($id)
     {
-        $this->model->restoreById($id);
+        $dataAuthor = $this->model->withTrashed()->find($id);
+        $dataAuthor->update([
+            'deleted_at' => null
+        ]);;
+
+        return $dataAuthor;
     }
 
 

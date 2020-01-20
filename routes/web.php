@@ -50,6 +50,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     /** books user*/
     Route::get('getUthor', 'BookController@getAuthor')->name('books');
     Route::get('bookList', 'BookController@bookList');
+    Route::get('ajaxBookList', 'BookController@ajaxBookList');
     Route::get('bookDetail/{id}', 'BookController@show')->name('bookDetail');
     Route::post('bookDetail/{id}', 'BookController@borrowBook')->name('borrow');
     Route::get('giveBookBack', 'BookController@giveBookBack')->name('giveBookBack');

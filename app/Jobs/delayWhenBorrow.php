@@ -35,7 +35,8 @@ class delayWhenBorrow implements ShouldQueue
      */
     public function handle()
     {
-        if ($this->book->status != Book::DANGXEM) {
+        //
+        if ($this->book->status != Book::DAMUON) {
             $this->book->update([
                 'status' => Book::COTHEMUON,
             ]);

@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\BookUserModel;
 use App\Validators\BookUserValidator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
 
@@ -27,12 +28,17 @@ class BookUserRepositoryEloquent extends BaseRepository implements BookUserRepos
 
     public function createUser($bookId, Request $request)
     {
-        $this->model->createUser($bookId, $request);
+        return $this->create([
+            'user_id' => Auth::id(),
+            'book_id' => $bookId,
+            'status'  => 0,
+            'pay_day' => $request->pay_day,
+        ]);
     }
 
     public function giveBookBack()
     {
-        $giveBookBacks = $this->model->payBook();
+        $giveBookBacks = $this->where('user_id', Auth::id())->paginate(10);
 
         return $giveBookBacks;
 
@@ -40,7 +46,11 @@ class BookUserRepositoryEloquent extends BaseRepository implements BookUserRepos
 
     public function payBook($process_id)
     {
-        $this->model->userPayBook($process_id);
+        $bookUser = $this->find($process_id);
+
+        $bookUser->update([
+            'status' => 1
+        ]);;
     }
 
     /**

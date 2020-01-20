@@ -74,9 +74,10 @@ class BookController extends Controller
     function restoreById($id)
     {
 
-        $this->bookRepository->restoreBook($id);
-
-        return redirect('admin/getUthor');
+        $result = $this->bookRepository->restoreBook($id);
+        if ($result == true) {
+            return redirect('admin/getUthor');
+        }
     }
 
     function addBook(Request $request)
@@ -86,14 +87,15 @@ class BookController extends Controller
         return response()->json([]);
     }
 
-    function bookList()
+    function bookList(Request $request)
     {
-        $books = $this->bookRepository->bookList();
+        $filterData = $request->only(['page', 'type']);
+        $filterData['type'] = isset($filterData['type']) ? $filterData['type'] : 0;
+        $books = $this->bookRepository->bookList($filterData);
         $authors = $this->authorRepository->DataAuthors();
 
         return view('bookList', compact('books', 'authors'));
     }
-
 
     function update(Request $request)
     {
@@ -107,6 +109,8 @@ class BookController extends Controller
     function delete($id)
     {
         $this->bookRepository->deleteBook($id);
+
+        return response()->json([]);
     }
 
     function borrowBook(Request $request, $bookId)
@@ -137,4 +141,5 @@ class BookController extends Controller
 
         return redirect()->route('books');
     }
+
 }

@@ -5,7 +5,7 @@
             @include('layout.menu')
             <div class="col-9">
                 <h4>Quản lý sách</h4>
-                @if(Auth::User()->role == 1)
+                @if(Auth::user()->role == 1)
                     <button type="button" class="btn btn-success mt-5 mb-3" data-toggle="modal" data-target="#addBook">
                         Tạo mới sách
                     </button>
@@ -52,15 +52,14 @@
                     </div>
                 @endif
                 <div id="listBooks"></div>
-
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-            crossorigin="anonymous"></script>
+@endsection
+
+@push('script')
     <script>
+
         $(document).ready(function () {
             $.ajaxSetup({
                 headers: {
@@ -68,18 +67,26 @@
                 }
             });
             var currentPage = 1;
+            var type = 0;
 
-            // load tac gia
+            // load tac gia - chỗ này e đã truyền nó lên trên sv đâu
             function loadBook(currentPage) {
-                $.ajax({
-                    url: '/admin/bookList?page=' + currentPage,
-                    method: 'get',
-                    dataType: 'html',
-                    success: function (response) {
-                        if (response) {
-                            $('#listBooks').html(response);
+                //http://laravel-project-3.local/admin/getUthor
+                return new Promise(function(res, rej) {
+                    $.ajax({
+                        url: 'http://laravel-project-3.local/admin/bookList?page=' + currentPage + '&type=' + type,
+                        method: 'get',
+                        dataType: 'html',
+                        success: function (response) {
+                            if (response) {
+                                $('#listBooks').html(response);
+
+                                res()
+                            } else {
+                                rej()
+                            }
                         }
-                    }
+                    })
                 })
             }
 
@@ -97,6 +104,9 @@
                         currentPage = 1
                         loadBook(currentPage);
                         $("#addBook").modal('hide')
+                    },
+                    error: function () {
+                        alert("Bạn thêm sách mà không ghi sách :(( , Đỡ thế nào được đây :)))");
                     }
                 })
             })
@@ -167,9 +177,32 @@
                     success: function () {
                         alert('delete successfull');
                         loadBook(currentPage)
+                    },
+                    error: function () {
+                        alert("Rất tiếc, lỗi mất tiu, thử lại nhé :))))");
                     }
                 })
             })
-        })
+
+            // em dang dung 2 hàm khác nhau mà. Nên e phải gom vào 1 hàm ntn
+            $(document).on('click', '[btn-filter]', function (e) {
+                e.preventDefault();
+                let value = $(this).attr('btn-filter');
+
+                // set type
+                type = value
+                currentPage = 1
+                loadBook(1).then(function(res) {
+                    $('.filter-active').removeClass('filter-active');
+                    $('[btn-filter=' +value+ ']').addClass('filter-active')
+                }).catch(err => {
+                    console.log(err)
+                })
+            });
+        });
+
+
     </script>
-@endsection
+@endpush
+
+

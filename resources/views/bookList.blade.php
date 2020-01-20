@@ -2,7 +2,20 @@
     .hidden {
         display: none;
     }
+
+    .filter-active {
+        font-weight: bold;
+        background: dodgerblue;
+        color: #fff;
+    }
 </style>
+
+<div class="float-right">
+    <button class="btn btn-default filter-active" btn-filter="3">tat ca</button>
+    <button class="btn btn-default" btn-filter="1">dang xem</button>
+    <button class="btn btn-default" btn-filter="2">da muon</button>
+    <button class="btn btn-default" btn-filter="0">chua muon</button>
+</div>
 <table class="table">
     <thead class="thead-light">
     <tr>
@@ -24,7 +37,7 @@
             </td>
             <td>
                  <span
-                     class="content">{{$book->Author->name}}
+                     class="content">{{@$book->Author->name}}
                 </span>
                 <select class="form-control hidden newName" name="author_id">
                     @foreach($authors as $author)
@@ -44,7 +57,7 @@
                 @endif
             </td>
             <td>
-                @if(Auth::User()->role == 1)
+                @if(Auth::user()->role == 1)
                     <button type="button" class="btn btn-success edit" data-id="{{$book['id']}}">Sửa
                     </button>
                     <button type="button" class="btn btn-danger delete" data-id="{{$book['id']}}">Xóa

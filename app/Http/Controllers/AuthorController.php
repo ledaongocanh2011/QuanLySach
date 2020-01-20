@@ -48,6 +48,7 @@ class AuthorController extends Controller
 
     function delete($id)
     {
+
         $this->authorRepository->deleteAuthor($id);
     }
 

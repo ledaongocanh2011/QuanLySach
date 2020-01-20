@@ -47,7 +47,7 @@
         $(function () {
             setTimeout(function () {
                 alert("ban da het thoi gian xem, mot la muon hai la out nheee");
-            }, 5000)
+            }, 60000)
         })
     </script>
 

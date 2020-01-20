@@ -42,6 +42,6 @@ class UserController extends Controller
 
     function delete($id)
     {
-        $this->userRepository->deleteUser($id);
+        return $this->userRepository->deleteUser($id);
     }
 }

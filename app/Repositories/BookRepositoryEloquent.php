@@ -39,53 +39,68 @@ class BookRepositoryEloquent extends BaseRepository implements BookRepository
 
     public function index()
     {
-        $this->model->dataBook();
-
+        return $this->orderBy('id', 'desc')->paginate('2');
     }
 
-    public function bookList()
+    public function bookList($options = array())
     {
+        //dd($options);
         if (Auth::User()->role == User::ADMIN) {
-            $books = $this->model->showListWithAdmin();
+            if ($options['type'] == 3) {
+                return $this->orderBy('id', 'desc')->paginate('10');
+            }
+            $books = $this->where('status', '=', $options['type'])->orderBy('id', 'desc')->paginate(10);
         } else {
-            $books = $this->model->showListWithUser();
+            $books = $this->where('status', '!=', User::DAMUON)->orderBy('id', 'desc')->paginate(10);
         }
 
         return $books;
     }
 
-    public function addBook(Request $request)
+    public function addBook(Request $req)
     {
-        $this->model->addDataBook($request);
+        return $this->create([
+            'book_title' => $req->book_title,
+            'author_id'  => $req->author_id,
+        ]);
     }
 
     public function updateBook(Request $request)
     {
-        $books = $this->model->updateBook($request);
+        $dataBook = $this->find($request->id);
+        $dataBook->update($request->all());
 
-        return $books;
+        return $dataBook;
     }
 
     public function deleteBook($id)
     {
-        $this->model->deleteBook($id);
+        return $this->find($id)->delete();
     }
 
     public function restoreBook($id)
     {
-        $this->model->restoreBookById($id);
+        $dataBook = $this->withTrashed()->find($id);
+        $dataBook->update([
+            'deleted_at' => null
+        ]);
+
+        return $dataBook;
     }
 
     public function restore()
     {
-        $books = $this->model->restoreBook();
+        $books = $this->onlyTrashed('deleted_at')->paginate(10);
 
         return $books;
     }
 
     public function show($id)
     {
-        $bookDetail = $this->model->showBook($id);
+        $bookDetail = $this->find($id);
+        $bookDetail->update([
+            'status' => Book::DANGXEM,
+        ]);
         $current = Carbon::now();
         /** run job */
         // de dua mot job vao queues su dung dispatch
@@ -102,11 +117,22 @@ class BookRepositoryEloquent extends BaseRepository implements BookRepository
 
     public function borrowBook($bookId)
     {
-        $this->model->userBorrow($bookId);
+        $book = $this->find($bookId);
+        $status = $book->update([
+            'status' => User::DAMUON
+        ]);
+
+        return $book;
     }
+
     public function userPayBook($bookId)
     {
-        $this->model->userPayBook($bookId);
+        $book = $this->find($bookId);
+        $status = $book->update([
+            'status' => Book::COTHEMUON
+        ]);
+
+        return $book;
     }
 
 }

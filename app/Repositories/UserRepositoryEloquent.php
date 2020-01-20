@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\User;
 use App\Validators\UserValidator;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Prettus\Repository\Criteria\RequestCriteria;
 use Prettus\Repository\Eloquent\BaseRepository;
 
@@ -27,17 +28,24 @@ class UserRepositoryEloquent extends BaseRepository implements UserRepository
 
     public function userList()
     {
-        $users = $this->model->showListUser();
+        $users = $this->where('id', '!=', Auth::id())->orderBy('id', 'desc')->paginate(10);
 
         return compact('users');
     }
+
     public function updateUser(Request $request)
     {
-        $this->model->updateUser($request);
+        return $this->find($request->id)->update($request->all());
     }
+
     public function deleteUser($id)
     {
-        $this->model->deleteUser($id);
+        $dataUser = $this->find($id);
+        if (Auth::id() != $dataUser->id) {
+            $dataUser->delete();
+        }
+
+        return $dataUser;
     }
 
 

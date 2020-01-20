@@ -46,119 +46,124 @@
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
-            integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
-            crossorigin="anonymous"></script>
-    <script>
-        $(document).ready(function () {
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-            var currentPage = 1;
+    @push('script')
+        <script>
+            $(document).ready(function () {
+                $.ajaxSetup({
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    }
+                });
+                var currentPage = 1;
 
-            // load tac gia
-            function loadAuthor(currentPage) {
-                $.ajax({
-                    url: '/admin/authorList?page=' + currentPage,
-                    method: 'get',
-                    dataType: 'html',
-                    success: function (response) {
-                        if (response) {
-                            $('#list').html(response);
+                // load tac gia
+                function loadAuthor(currentPage) {
+                    $.ajax({
+                        url: '/admin/authorList?page=' + currentPage,
+                        method: 'get',
+                        dataType: 'html',
+                        success: function (response) {
+                            if (response) {
+                                $('#list').html(response);
+                            }
                         }
-                    }
-                })
-            }
+                    })
+                }
 
-            loadAuthor(currentPage);
-            $(document).on('click', '#submit', function (e) {
-                e.preventDefault();
-                //tao tac gia
-                $.ajax({
-                    url: 'authors',
-                    method: 'post',
-                    dataType: 'json',
-                    data: $('#fAuthor').serialize(),
-                    success: function (response) {
-                        alert('add new record successful!');
-                        currentPage = 1
-                        loadAuthor(currentPage);
-                        $("#addAuthor").modal('hide')
-                    }
+                loadAuthor(currentPage);
+                $(document).on('click', '#submit', function (e) {
+                    e.preventDefault();
+                    //tao tac gia
+                    $.ajax({
+                        url: 'authors',
+                        method: 'post',
+                        dataType: 'json',
+                        data: $('#fAuthor').serialize(),
+                        success: function (response) {
+                            alert('add new record successful!');
+                            currentPage = 1
+                            loadAuthor(currentPage);
+                            $("#addAuthor").modal('hide')
+                        },
+                        error: function () {
+                            alert("Điền hộ tuii thằng tác giả bạn eiiiiii :)))");
+                        }
+                    })
                 })
-            })
                 // disable paginate()
-            $(document).on('click', '.page-item', function (e) {
-                e.preventDefault();
-                let paginate = $(this)
-                if (paginate.hasClass('disabled')) {
-                    // alert("khong chay duoc dau he");
-                    return false
-                }
-                let page = paginate.find('.page-link').text();
-                console.log(page);
-                if (page == "›") {
-                    currentPage = currentPage + 1;
-                    loadAuthor(currentPage);
-                } else if (page == "‹") {
-                    currentPage = currentPage - 1;
-                    loadAuthor(currentPage);
-                } else {
-                    currentPage = page
-                    loadAuthor(page);
-                }
-            })
+                $(document).on('click', '.page-item', function (e) {
+                    e.preventDefault();
+                    let paginate = $(this)
+                    if (paginate.hasClass('disabled')) {
+                        // alert("khong chay duoc dau he");
+                        return false
+                    }
+                    let page = paginate.find('.page-link').text();
+                    console.log(page);
+                    if (page == "›") {
+                        currentPage = currentPage + 1;
+                        loadAuthor(currentPage);
+                    } else if (page == "‹") {
+                        currentPage = currentPage - 1;
+                        loadAuthor(currentPage);
+                    } else {
+                        currentPage = page
+                        loadAuthor(page);
+                    }
+                })
 
-            $(document).on('click', '.edit', function (e) {
-                e.preventDefault();
-                let tr = $(this).closest("tr");
-                tr.find('input').toggleClass("hidden");
-                tr.find('.content').toggleClass("hidden");
-                $(this).siblings('.save').toggleClass('hidden');
-                $(this).siblings('.delete').toggleClass('hidden');
-                $(this).toggleClass('hidden');
-            })
-            $(document).on('click', '.save', function (e) {
-                e.preventDefault();
-                let id = $(this).attr('data-id');
-                let tr = $(this).closest("tr");
-                let editAuthor = tr.find('.data').val();
-                let data = {
-                    id: id,
-                    name: editAuthor,
-                }
-                $.ajax({
-                    url: "/admin/author/update",
-                    method: "post",
-                    dataType: "json",
-                    data: data,
-                    success: function (response) {
-                        alert("edit successsful!");
-                        loadAuthor(currentPage)
-                    },
-                    error: function () {
+                $(document).on('click', '.edit', function (e) {
+                    e.preventDefault();
+                    let tr = $(this).closest("tr");
+                    tr.find('input').toggleClass("hidden");
+                    tr.find('.content').toggleClass("hidden");
+                    $(this).siblings('.save').toggleClass('hidden');
+                    $(this).siblings('.delete').toggleClass('hidden');
+                    $(this).toggleClass('hidden');
+                })
+                $(document).on('click', '.save', function (e) {
+                    e.preventDefault();
+                    let id = $(this).attr('data-id');
+                    let tr = $(this).closest("tr");
+                    let editAuthor = tr.find('.data').val();
+                    let data = {
+                        id: id,
+                        name: editAuthor,
                     }
+                    $.ajax({
+                        url: "/admin/author/update",
+                        method: "post",
+                        dataType: "json",
+                        data: data,
+                        success: function (response) {
+                            alert("edit successsful!");
+                            loadAuthor(currentPage)
+                        },
+                        error: function () {
+                        }
+                    })
+                })
+                $(document).on('click', '.delete', function () {
+                    if (!confirm("ban co thuc su muon xoa?")) {
+                        return;
+                    }
+                    let id = $(this).attr('data-id');
+                    $.ajax({
+                        url: 'author/' + id,
+                        method: "DELETE",
+                        success: function () {
+                            alert('delete successfull');
+                            loadAuthor(currentPage)
+                        },
+                        error: function () {
+                            alert("ông này đang có sách cho mượn rồi. Xóa đến tết sang năm cũng không được đâu :))))")
+                        }
+                    })
                 })
             })
-            $(document).on('click', '.delete', function () {
-                if (!confirm("ban co thuc su muon xoa?")) {
-                    return;
-                }
-                let id = $(this).attr('data-id');
-                $.ajax({
-                    url: 'author/' + id,
-                    method: "DELETE",
-                    success: function () {
-                        alert('delete successfull');
-                        loadAuthor(currentPage)
-                    }
-                })
-            })
-        })
-    </script>
+        </script>
+    @endpush
+
 @endsection
 
 
